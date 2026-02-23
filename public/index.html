@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NBA 3PT Coverage-Adjusted Scores</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">NBA 3PT Coverage-Adjusted Scores</p>
+          <h1>What if every 3 went in at each player’s career rate by coverage?</h1>
+          <p class="subhead">
+            Uses NBA.com tracking splits by defender distance (very tight, tight, open, wide open)
+            to normalize each player’s 3PA to their career rates.
+          </p>
+        </div>
+        <div class="status">
+          <div class="status-row">
+            <span class="label">Updated</span>
+            <span id="updated">Loading…</span>
+          </div>
+          <div class="status-row">
+            <span class="label">Game Date</span>
+            <span id="game-date">Loading…</span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section id="games" class="games"></section>
+        <section class="notes">
+          <h2>Method Notes</h2>
+          <ul>
+            <li>Adjusted points = actual points - actual 3PM * 3 + expected 3PM * 3.</li>
+            <li>Expected 3PM uses career percentages by defender distance; league averages fill missing splits.</li>
+            <li>Tracking data can lag behind box scores, so updates may trail game end.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
