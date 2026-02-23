@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -14,6 +15,9 @@ def main() -> None:
     parser.add_argument("--max-age-days", type=int, default=14)
     args = parser.parse_args()
 
+    if os.getenv("SKIP_CAREER_REFRESH") == "1":
+        return
+
     out_path = Path(args.out)
     refresh = True
 
@@ -23,8 +27,14 @@ def main() -> None:
             refresh = False
 
     if refresh:
-        payload = build_career_rates(None)
-        write_json(args.out, payload)
+        try:
+            payload = build_career_rates(None)
+            write_json(args.out, payload)
+        except Exception:
+            # If we already have a cache, keep it instead of failing hard.
+            if out_path.exists():
+                return
+            raise
 
 
 if __name__ == "__main__":

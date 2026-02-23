@@ -1,5 +1,6 @@
 import json
 import time
+import random
 from typing import Dict, Any
 
 import requests
@@ -17,12 +18,13 @@ DEFAULT_HEADERS = {
 }
 
 
-def request_json(endpoint: str, params: Dict[str, Any], retries: int = 3, sleep_s: float = 1.0) -> Dict[str, Any]:
+def request_json(endpoint: str, params: Dict[str, Any], retries: int = 6, sleep_s: float = 1.5) -> Dict[str, Any]:
     url = f"{NBA_STATS_BASE}/{endpoint}"
     last_exc = None
     for attempt in range(retries):
         try:
-            resp = requests.get(url, params=params, headers=DEFAULT_HEADERS, timeout=30)
+            # Longer timeout and backoff to handle stats.nba.com slowness.
+            resp = requests.get(url, params=params, headers=DEFAULT_HEADERS, timeout=(10, 90))
             if resp.status_code == 429:
                 time.sleep(sleep_s * (attempt + 1))
                 continue
@@ -30,7 +32,10 @@ def request_json(endpoint: str, params: Dict[str, Any], retries: int = 3, sleep_
             return resp.json()
         except Exception as exc:
             last_exc = exc
-            time.sleep(sleep_s * (attempt + 1))
+            # Exponential backoff with small jitter.
+            base = sleep_s * (2 ** attempt)
+            jitter = random.uniform(0, 0.5)
+            time.sleep(base + jitter)
     raise RuntimeError(f"NBA stats request failed after {retries} attempts: {endpoint} {params}") from last_exc
 
 
