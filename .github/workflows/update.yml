@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Refresh career rates if needed
-        run: python scripts/refresh_career_rates.py --out data/career_rates.json
+        run: SKIP_CAREER_REFRESH=1 python scripts/refresh_career_rates.py --out data/career_rates.json
       - name: Update latest game scores
         run: python scripts/update_scores.py --career data/career_rates.json --out public/data/latest.json --days-back 2
       - name: Commit data
