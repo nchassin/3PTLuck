@@ -1,0 +1,28 @@
+name: Update coverage-adjusted scores
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Refresh career rates if needed
+        run: python scripts/refresh_career_rates.py --out data/career_rates.json
+      - name: Update latest game scores
+        run: python scripts/update_scores.py --career data/career_rates.json --out public/data/latest.json --days-back 2
+      - name: Commit data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update coverage-adjusted scores"
+          file_pattern: "public/data/latest.json data/career_rates.json"
